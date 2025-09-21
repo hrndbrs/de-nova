@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LanguageSelector } from "@/components/language-selector"
-import { Menu, X } from "lucide-react"
-import { useState } from "react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSelector } from "@/components/language-selector";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 
 const navigationItems = [
-  { href: "/", label: "Rumah" },
-  { href: "/cek-results", label: "Cek Results" },
+  { href: "/", label: "Beranda" },
+  { href: "/results", label: "Cek Hasil" },
   { href: "/compare", label: "Bandingkan" },
   { href: "/about", label: "Tentang" },
   { href: "/faq", label: "FAQ" },
-]
+];
 
 export function Navigation() {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <>
@@ -36,9 +36,10 @@ export function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === item.href ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === item.href
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -51,8 +52,16 @@ export function Navigation() {
             <div className="md:hidden flex items-center space-x-2">
               <LanguageSelector />
               <ThemeToggle />
-              <Button variant="ghost" size="sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -75,9 +84,10 @@ export function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-base font-medium transition-colors hover:text-primary text-center py-2 ${
-                      pathname === item.href ? "text-primary" : "text-muted-foreground"
-                    }`}
+                    className={`text-base font-medium transition-colors hover:text-primary text-center py-2 ${pathname === item.href
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                      }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -89,5 +99,5 @@ export function Navigation() {
         </>
       )}
     </>
-  )
+  );
 }
