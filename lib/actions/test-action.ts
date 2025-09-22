@@ -3,7 +3,7 @@
 import { connectToDatabase } from "@/config/db";
 import { B5Error, type DbResult } from "../types/survey-type";
 import { ObjectId } from "mongodb";
-import axios from "axios";
+import { api } from "@/config/api";
 
 import generateResult, { getInfo } from "@bigfive-org/results";
 import calculateScore from "@bigfive-org/score";
@@ -13,7 +13,6 @@ import type { PersonalityAnalysisResponse } from "../types/analysis-type";
 import { N8NBaseError, N8NPayloadError } from "../types/n8n-type";
 
 const collectionName = process.env.DB_COLLECTION || "results";
-const workflowUrl = process.env.WORKFLOW_BASE_URL;
 const resultLanguages = getInfo().languages;
 
 export async function saveTest(testResult: DbResult) {
@@ -70,8 +69,8 @@ export async function getTestResult(
 
 export async function analyzeResults(id: string) {
   try {
-    const { data } = await axios.post<PersonalityAnalysisResponse>(
-      `${workflowUrl}/webhook/analyze`,
+    const { data } = await api.post<PersonalityAnalysisResponse>(
+      "/webhook/analyze",
       { id },
     );
     if ("reason" in data.data) throw data.data;

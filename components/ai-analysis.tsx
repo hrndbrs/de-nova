@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import { TextEffect } from "./ui/text-effect";
-import type { Analysis } from "@/lib/types/analysis-type";
-
-export type AIAnalysisProps = {
-  analyses: Analysis[];
-};
+import { useReport } from "@/contexts/result-context";
 
 export function AnalysisLoader() {
   const [show, setShow] = useState(true);
@@ -30,8 +26,16 @@ export function AnalysisLoader() {
   );
 }
 
-export function AIAnalysis({ analyses }: AIAnalysisProps) {
-  console.log(analyses, 2123);
+export function AIAnalysis() {
+  const { getAnalyses } = useReport();
+
+  if (getAnalyses === null) throw new Error("getAnalyses should be provided");
+
+  const data = use(getAnalyses);
+
+  if ("error" in data) return null;
+
+  const analyses = data.analyses;
   return (
     <div className="space-y-6">
       {analyses[0].sections.map((section) => (

@@ -1,24 +1,19 @@
 "use client";
 
-import { use, useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "./ui/button";
-import { AIAnalysis } from "./ai-analysis";
+import { BigFiveReport } from "./bigfive-report";
+import { AIAnalysis, AnalysisLoader } from "./ai-analysis";
 import { Card } from "./ui/card";
-import { BarChart } from "./bar-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Copy, Share, Mail } from "lucide-react";
-import { EmailModal } from "./email-modal";
-import type { Report } from "@/lib/types/survey-type";
-import type { Analysis } from "@/lib/types/analysis-type";
+import { Copy, Share } from "lucide-react";
+import { EmailModal, EmailModalTrigger } from "./email-modal";
 
 type ResultProps = {
   id: string;
-  report: Report;
-  getAnalyses: Promise<{ analyses: Analysis[] } | { error: unknown }>;
 };
 
-export function Result({ id, report, getAnalyses }: ResultProps) {
-  const analyses = use(getAnalyses);
+export function Result({ id }: ResultProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [_, setCopied] = useState(false);
 
@@ -77,14 +72,9 @@ export function Result({ id, report, getAnalyses }: ResultProps) {
             <Share className="h-4 w-4" />
             Bagikan
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsEmailModalOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Mail className="h-4 w-4" />
-            Email ke saya
-          </Button>
+          <Suspense fallback={<EmailModalTrigger disabled />}>
+            <EmailModalTrigger onClick={() => setIsEmailModalOpen(true)} />
+          </Suspense>
         </div>
       </div>
       <Tabs defaultValue="big-five" className="w-full">
@@ -94,50 +84,21 @@ export function Result({ id, report, getAnalyses }: ResultProps) {
         </TabsList>
 
         <TabsContent value="big-five" className="space-y-6">
-          <BarChart max={120} results={report.results} />
-          {/* Big Five Results */}
-          <div className="space-y-6">
-            {report.results.map((result) => (
-              <Card key={result.domain} className="p-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold capitalize">
-                      {result.title}
-                    </h3>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">
-                        skor: {result.score} ({result.scoreText})
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-sm leading-relaxed text-foreground">
-                    {result.shortDescription}
-                  </p>
-
-                  <BarChart max={20} results={result.facets} />
-                  <div
-                    className="text-sm leading-relaxed text-foreground"
-                    dangerouslySetInnerHTML={{ __html: result.description }}
-                  />
-                </div>
-              </Card>
-            ))}
-          </div>
+          <BigFiveReport />
         </TabsContent>
         <TabsContent value="ai-analysis" className="space-y-6">
-          {"analyses" in analyses ? (
-            <AIAnalysis analyses={analyses.analyses} />
-          ) : null}
+          <Suspense fallback={<AnalysisLoader />}>
+            <AIAnalysis />
+          </Suspense>
         </TabsContent>
       </Tabs>
 
-      {"analyses" in analyses && (
+      <Suspense>
         <EmailModal
           isOpen={isEmailModalOpen}
           onClose={() => setIsEmailModalOpen(false)}
-          sections={analyses.analyses[0].sections}
         />
-      )}
+      </Suspense>
     </>
   );
 }

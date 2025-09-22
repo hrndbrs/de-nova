@@ -1,47 +1,75 @@
-"use client";
-
-import type React from "react";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { use, useState } from "react";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Section } from "@/lib/types/analysis-type";
 import axios from "axios";
+import { useReport } from "@/contexts/result-context";
+import type { Section } from "@/lib/types/analysis-type";
+import { Mail } from "lucide-react";
 
 interface EmailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  sections: Section[];
 }
 
-export function EmailModal({ isOpen, onClose, sections }: EmailModalProps) {
+export function EmailModalTrigger(props: ButtonProps) {
+  const { getAnalyses } = useReport();
+
+  if (!props.disabled) {
+    if (getAnalyses === null) throw new Error();
+
+    const _ = use(getAnalyses);
+  }
+
+  return (
+    <Button variant="outline" className="flex items-center gap-2" {...props}>
+      <Mail className="h-4 w-4" />
+      Email ke saya
+    </Button>
+  );
+}
+
+export function EmailModal({ isOpen, onClose }: EmailModalProps) {
+  const { id, getAnalyses, report } = useReport();
+  const [isSubmitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
 
+  if (getAnalyses === null || report === null)
+    throw new Error("getAnalyses and BigFive Report should be provided");
+
+  const data = use(getAnalyses);
+
+  let sections: Section[] = [];
+
+  if ("analyses" in data) sections = data.analyses[0].sections;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
+
+    setSubmitting(() => true);
     try {
-      await axios.post("/api/report/pdf", { sections, ...formData });
+      await axios.post("/api/report/pdf", {
+        id,
+        sections,
+        report: report.results,
+        ...formData,
+      });
       onClose();
     } catch (error) {
       console.error(error);
+    } finally {
+      setSubmitting(() => false);
     }
   };
 
@@ -87,7 +115,7 @@ export function EmailModal({ isOpen, onClose, sections }: EmailModalProps) {
             >
               Batal
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
               Kirim Email
             </Button>
           </div>

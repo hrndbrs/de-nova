@@ -5,13 +5,18 @@
   <meta charset="utf-8">
   <title>PDF Report</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 12pt;
+    * {
       margin: 0;
       padding: 0;
     }
+    body {
+      font-family: Inter, Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      font-style: Regular;
+    }
     .page {
+      min-height: 661px;
       page-break-after: always;
       box-sizing: border-box;
     }
@@ -19,53 +24,114 @@
       page-break-after: auto;
     }
     h1, h2, h3 {
-      margin: 10px 0 5px;
+      font-weight: 700;
+      font-style: Bold;
     }
-    p {
-      margin: 5px 0 15px;
-      line-height: 1.5;
+    h1 {
+      font-size: 32px;
+    }
+    h2 {
+      font-size: 20px;
+    }
+    h3 {
+      font-size: 16px;
+    }
+    .content {
+      display: flex; 
+      flex-direction: column; 
+      gap: 26px;
     }
   </style>
 </head>
 <body>
 
   <!-- Page 1: For -->
-  <div class="page">
-    <div style="margin-top: 200px; text-align: center;">
-      <p>Ditulis untuk</p>
+  <div 
+    class="page" 
+    style="display: flex; align-items: center; justify-content: space-between; gap: 20px;"
+  >
+    <div>
+      <p style="margin-bottom: 4px;">Ditulis untuk</p>
       <h1 class="highlight">{{recipientName}}</h1>
     </div>
+    <p style="width: 151px; text-align: right;">
+      Penilaian kepribadian ini didasarkan pada Big Five model, salah satu kerangka psikologi yang paling banyak digunakan.
+    </p>
   </div>
 
   <!-- Page 2: Caveat Message -->
   <div class="page">
-    <h2>Pembukaan</h2>
+    <div
+      style="display: flex; flex-direction: column; gap: 12px;"
+    >
+      <h2>Pembukaan</h2>
 
-    <h3>Bijaklah dalam membaca</h3>
-    <p>Hasil ini bukan jawaban final tentang siapa diri Anda. Anggaplah sebagai sebuah pintu—untuk membuka ruang refleksi dan pemahaman diri yang lebih dalam.</p>
+      <div>
+        <h3 style="margin-bottom: 8px;">
+          Bijaklah dalam membaca
+        </h3>
+        <p>
+          Hasil ini bukan jawaban final tentang siapa diri Anda. Anggaplah sebagai sebuah pintu—untuk membuka ruang refleksi dan pemahaman diri yang lebih dalam.
+        </p>
+      </div>
 
-    <h3>Untuk Pertumbuhan Anda</h3>
-    <p>Tujuannya adalah membantu Anda memahami kekuatan, pola, dan area yang bisa dikembangkan. Mengenal diri adalah langkah penting menuju perkembangan pribadi maupun profesional.</p>
+      <div>
+        <h3 style="margin-bottom: 8px;">
+          Untuk Pertumbuhan Anda
+        </h3>
+        <p>
+          Tujuannya adalah membantu Anda memahami kekuatan, pola, dan area yang bisa dikembangkan. Mengenal diri adalah langkah penting menuju perkembangan pribadi maupun profesional.
+        </p>
+      </div>
 
-    <h3>Pilihan di Tangan Anda</h3>
-    <p>Apa yang akan Anda lakukan setelah melihat hasilnya sepenuhnya adalah keputusan Anda. Penilaian ini memberi sudut pandang, tetapi langkah, tindakan, dan arah perjalanan tetap berada di tangan Anda.</p>
+      <div>
+        <h3 style="margin-bottom: 8px;">
+          Pilihan di Tangan Anda
+        </h3>
+        <p>
+          Apa yang akan Anda lakukan setelah melihat hasilnya sepenuhnya adalah keputusan Anda. Penilaian ini memberi sudut pandang, tetapi langkah, tindakan, dan arah perjalanan tetap berada di tangan Anda.
+        </p>
+      </div>
 
-    <h2>Contact Info</h2>
-    <p>
-      Phone: {{contact.phone}} <br>
-      Visit: {{contact.website}}
-    </p>
+      <h2>Contact Info</h2>
+
+      <div 
+        style="display: flex; flex-direction: column; gap: 20px;"
+      >
+        <p>
+          <span style="font-weight: 700;">
+            Visit:
+          </span> {{contact.website}}
+        </p>
+        <p>
+          <span style="font-weight: 700;">
+            Email:
+          </span> {{contact.email}}
+        </p>
+        <p>
+          <span style="font-weight: 700;">
+            Phone:
+          </span> {{contact.phone}} 
+        </p>
+      </div>
+   
+    </div>
   </div>
 
-  <!-- Dynamic Content -->
-
-  <div>
+  <!-- AI Analysis Report -->
+  <div class="page content">
     {{#each sections}}
-      <h2>{{title}}</h2>
-      {{#each content}}
-        <h3>{{title}}</h3>
-        <p>{{detail}}</p>
-      {{/each}}
+      <div>
+        <h2 style="margin-bottom: 20px;">{{title}}</h2>
+        <div 
+          style="display: flex; flex-direction: column; gap: 8px;"
+        >
+          {{#each content}}
+            <h3>{{title}}</h3>
+            <p>{{detail}}</p>
+          {{/each}}
+        </div>
+      </div>
     {{/each}}
   </div>
 
