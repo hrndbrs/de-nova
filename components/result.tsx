@@ -1,25 +1,26 @@
 "use client";
 
-import { Suspense, use, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { use, useState } from "react";
+import { Button } from "./ui/button";
 import { AIAnalysis } from "./ai-analysis";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "./ui/card";
+import { BarChart } from "./bar-chart";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Copy, Share, Mail } from "lucide-react";
-import { EmailModal } from "@/components/email-modal";
+import { EmailModal } from "./email-modal";
 import type { Report } from "@/lib/types/survey-type";
 import type { Analysis } from "@/lib/types/analysis-type";
 
 type ResultProps = {
   id: string;
-  results: Report["results"];
+  report: Report;
   getAnalyses: Promise<{ analyses: Analysis[] } | { error: unknown }>;
 };
 
-export function Result({ id, results, getAnalyses }: ResultProps) {
+export function Result({ id, report, getAnalyses }: ResultProps) {
   const analyses = use(getAnalyses);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [_, setCopied] = useState(false);
 
   const handleCopyCode = async () => {
     try {
@@ -49,6 +50,43 @@ export function Result({ id, results, getAnalyses }: ResultProps) {
 
   return (
     <>
+      {/* Code Display and Actions */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="flex-1">
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <code className="flex-1 text-sm font-mono bg-muted px-3 py-2 rounded">
+                {id || "Loading..."}
+              </code>
+              <Button variant="ghost" size="sm" onClick={handleCopyCode}>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              *Simpan kode ini untuk cek kembali hasil big-five analysis kamu
+            </p>
+          </Card>
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            onClick={handleShare}
+            className="flex items-center gap-2"
+            disabled
+          >
+            <Share className="h-4 w-4" />
+            Bagikan
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setIsEmailModalOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Mail className="h-4 w-4" />
+            Email ke saya
+          </Button>
+        </div>
+      </div>
       <Tabs defaultValue="big-five" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
           <TabsTrigger value="big-five">Big-Five</TabsTrigger>
@@ -56,44 +94,10 @@ export function Result({ id, results, getAnalyses }: ResultProps) {
         </TabsList>
 
         <TabsContent value="big-five" className="space-y-6">
-          {/* Code Display and Actions */}
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <div className="flex-1">
-              <Card className="p-4">
-                <div className="flex items-center gap-3">
-                  <code className="flex-1 text-sm font-mono bg-muted px-3 py-2 rounded">
-                    {id || "Loading..."}
-                  </code>
-                  <Button variant="ghost" size="sm" onClick={handleCopyCode}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  *Simpan kode ini untuk cek kembali hasil big-five analysis
-                  kamu
-                </p>
-              </Card>
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={handleShare} className="flex items-center gap-2">
-                <Share className="h-4 w-4" />
-                Bagikan
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsEmailModalOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <Mail className="h-4 w-4" />
-                Email ke saya
-              </Button>
-            </div>
-          </div>
-
+          <BarChart max={120} results={report.results} />
           {/* Big Five Results */}
           <div className="space-y-6">
-            {results.map((result) => (
+            {report.results.map((result) => (
               <Card key={result.domain} className="p-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
@@ -106,6 +110,11 @@ export function Result({ id, results, getAnalyses }: ResultProps) {
                       </div>
                     </div>
                   </div>
+                  <p className="text-sm leading-relaxed text-foreground">
+                    {result.shortDescription}
+                  </p>
+
+                  <BarChart max={20} results={result.facets} />
                   <div
                     className="text-sm leading-relaxed text-foreground"
                     dangerouslySetInnerHTML={{ __html: result.description }}
@@ -116,19 +125,19 @@ export function Result({ id, results, getAnalyses }: ResultProps) {
           </div>
         </TabsContent>
         <TabsContent value="ai-analysis" className="space-y-6">
-          <Suspense fallback={<div>Loading...</div>}>
-            {"analyses" in analyses ? (
-              <AIAnalysis analyses={analyses.analyses} />
-            ) : null}
-          </Suspense>
+          {"analyses" in analyses ? (
+            <AIAnalysis analyses={analyses.analyses} />
+          ) : null}
         </TabsContent>
       </Tabs>
 
-      <EmailModal
-        isOpen={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
-        bigFiveCode={id}
-      />
+      {"analyses" in analyses && (
+        <EmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+          sections={analyses.analyses[0].sections}
+        />
+      )}
     </>
   );
 }

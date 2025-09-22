@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PDF Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12pt;
+      margin: 0;
+      padding: 0;
+    }
+    .page {
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+    .page:last-child {
+      page-break-after: auto;
+    }
+    h1, h2, h3 {
+      margin: 10px 0 5px;
+    }
+    p {
+      margin: 5px 0 15px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1: For -->
+  <div class="page">
+    <div style="margin-top: 200px; text-align: center;">
+      <p>Ditulis untuk</p>
+      <h1 class="highlight">{{recipientName}}</h1>
+    </div>
+  </div>
+
+  <!-- Page 2: Caveat Message -->
+  <div class="page">
+    <h2>Pembukaan</h2>
+
+    <h3>Bijaklah dalam membaca</h3>
+    <p>Hasil ini bukan jawaban final tentang siapa diri Anda. Anggaplah sebagai sebuah pintu—untuk membuka ruang refleksi dan pemahaman diri yang lebih dalam.</p>
+
+    <h3>Untuk Pertumbuhan Anda</h3>
+    <p>Tujuannya adalah membantu Anda memahami kekuatan, pola, dan area yang bisa dikembangkan. Mengenal diri adalah langkah penting menuju perkembangan pribadi maupun profesional.</p>
+
+    <h3>Pilihan di Tangan Anda</h3>
+    <p>Apa yang akan Anda lakukan setelah melihat hasilnya sepenuhnya adalah keputusan Anda. Penilaian ini memberi sudut pandang, tetapi langkah, tindakan, dan arah perjalanan tetap berada di tangan Anda.</p>
+
+    <h2>Contact Info</h2>
+    <p>
+      Phone: {{contact.phone}} <br>
+      Visit: {{contact.website}}
+    </p>
+  </div>
+
+  <!-- Dynamic Content -->
+
+  <div>
+    {{#each sections}}
+      <h2>{{title}}</h2>
+      {{#each content}}
+        <h3>{{title}}</h3>
+        <p>{{detail}}</p>
+      {{/each}}
+    {{/each}}
+  </div>
+
+</body>
+</html>
+

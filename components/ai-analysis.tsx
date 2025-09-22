@@ -1,11 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
+import { TextEffect } from "./ui/text-effect";
 import type { Analysis } from "@/lib/types/analysis-type";
 
 export type AIAnalysisProps = {
   analyses: Analysis[];
 };
+
+export function AnalysisLoader() {
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setShow((val) => !val);
+    }, 1200);
+
+    return () => {
+      clearInterval(t);
+    };
+  }, []);
+  return (
+    <div className="w-full flex items-center justify-center text-center p-5">
+      <TextEffect per="char" trigger={show}>
+        Analysing Result
+      </TextEffect>
+    </div>
+  );
+}
+
 export function AIAnalysis({ analyses }: AIAnalysisProps) {
   console.log(analyses, 2123);
   return (

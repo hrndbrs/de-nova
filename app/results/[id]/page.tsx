@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Navigation } from "@/components/navigation";
 import { Result } from "@/components/result";
 import { analyzeResults, getTestResult } from "@/lib/actions/test-action";
+import { AnalysisLoader } from "@/components/ai-analysis";
 
 export default async function ResultsPage({
   params,
@@ -27,7 +29,9 @@ export default async function ResultsPage({
             <p className="text-lg text-muted-foreground">Discover your self</p>
           </div>
 
-          <Result id={id} results={report.results} getAnalyses={getAnalyses} />
+          <Suspense fallback={<AnalysisLoader />}>
+            <Result id={id} report={report} getAnalyses={getAnalyses} />
+          </Suspense>
         </div>
       </main>
     </div>
