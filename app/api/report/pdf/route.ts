@@ -1,11 +1,11 @@
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
 import handlebars from "handlebars";
 import { api } from "@/config/api";
 import FormData from "form-data";
 import type { Section } from "@/lib/types/analysis-type";
 import type { Domain } from "@bigfive-org/results";
+import { getBrowser } from "@/lib/helpers/puppeteer";
 
 export const runtime = "nodejs";
 
@@ -33,12 +33,14 @@ export async function POST(req: Request) {
       sections: body.sections,
       report: body.report,
     });
-    const browser = await puppeteer.launch({
+    const browser = await getBrowser({
       headless: "shell",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
+
     await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.waitForSelector("body[data-chart-ready='true']");
 
     const pdfBuffer = await page.pdf({
       width: "595px",
@@ -76,6 +78,8 @@ export async function POST(req: Request) {
   } catch (error) {
     let code = 500;
     let message = "Internal Server Error";
+
+    console.error(error);
 
     if (error instanceof Error) {
       message = error.message;

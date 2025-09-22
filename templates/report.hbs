@@ -1,9 +1,11 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>PDF Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -118,6 +120,35 @@
     </div>
   </div>
 
+  <!-- BigFive Test Result -->
+  <div class="page content">
+    <div id="chart-domains"></div> 
+    <div 
+      style="display: flex; flex-direction: column; gap: 20px;"
+    >
+      {{#each report}}
+        <div
+          style="display: flex; flex-direction: column; gap: 8px;"
+        >
+          <div
+            style="display: flex; justify-content: space-between; align-items: flex-end;"
+          >
+            <h2>{{title}}</h2> 
+            <span>Skor: {{score}} ({{scoreText}})</span>
+          </div> 
+          <p>{{shortDescription}}</p>
+          <div id="facet-chart-{{@index}}"></div>
+          <div>{{{description}}}</div>
+          {{#each facets}}
+            <h3>{{title}}</h3>
+            <p>Skor: {{score}} ({{scoreText}})</p>
+            <p>{{text}}</p>
+          {{/each}}
+        </div> 
+      {{/each}}
+    </div> 
+  </div>
+
   <!-- AI Analysis Report -->
   <div class="page content">
     {{#each sections}}
@@ -135,6 +166,109 @@
     {{/each}}
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  const options = {
+    theme: {
+      mode: "light",
+    },
+    legend: {
+      show: false,
+    },
+    chart: {
+      type: "bar",
+      width: "496px",
+      toolbar: {
+        show: false,
+      },
+      fontFamily: "Inter, sans-serif",
+      background: "transparent",
+    },
+    plotOptions: {
+      bar: {
+        distributed: true,
+      },
+    },
+    fill: {
+      colors: [
+        "#9353d3",
+        "#006FEE",
+        "#f31260",
+        "#f5a524",
+        "#17c964",
+        "#E2711D",
+      ],
+    },
+  }
+
+  const labels = {
+    style: {
+      fontFamily: "Inter, sans-serif",
+      fontSize: "8px",
+    },
+  }
+
+  const domainChart = new ApexCharts(document.querySelector("#chart-domains"), {
+    ...options, 
+    yaxis: {
+      max: 120,
+    },
+    xaxis: {
+      categories: [
+        {{#each report}}
+          "{{title}}"{{#unless @last}},{{/unless}}
+        {{/each}}
+      ],
+      labels,
+    },
+    series: [{
+      name: "{{recipientName}}",
+      data: [
+        {{#each report}}
+          {{score}}{{#unless @last}},{{/unless}}
+        {{/each}}
+      ]
+    }]
+  })
+
+  {{#each report}}
+    const facetChart{{@index}} = new ApexCharts(document.querySelector("#facet-chart-{{@index}}"), {
+        ...options, 
+        yaxis: {
+          max: 20,
+        },
+        xaxis: {
+          categories: [
+            {{#each facets}}
+              "{{title}}"{{#unless @last}},{{/unless}}
+            {{/each}}
+          ],
+          labels,
+        },
+        series: [{
+          name: "{{recipientName}}",
+          data: [
+            {{#each facets}}
+              {{score}}{{#unless @last}},{{/unless}}
+            {{/each}}
+          ]
+        }]
+      })
+  {{/each}}
+
+  new Promise((res) => res())
+    .then(() => Promise.all([
+      domainChart.render(),
+      {{#each report}}
+        facetChart{{@index}}.render(),
+      {{/each}}
+    ]))
+    .then(() => {
+      setTimeout(()=>{
+        document.body.setAttribute("data-chart-ready", "true");
+      },1500)
+    })
+</script>
 </body>
 </html>
 
